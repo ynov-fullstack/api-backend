@@ -8,6 +8,14 @@ import { ApolloServer } from "@apollo/server";
 import http from "http";
 import UserType from "./graphql/types/User.js";
 import userResolvers from "./graphql/resolvers/user.resolver.js";
+import session from "express-session";
+import genFunc from 'connect-pg-simple';
+
+const PostgresqlStore = genFunc(session);
+const sessionStore = new PostgresqlStore({
+  conString: process.env.DATABASE_URL,
+  ssl: false,
+});
 
 dotenv.config();
 const { json } = pkg;
@@ -29,10 +37,21 @@ app.use(
   '/graphql',
   cors(),
   json(),
+  session({
+    secret: process.env.COOKIE_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    },
+    store: sessionStore
+  }),
   expressMiddleware(gqlServer, {
     context: async (
-      { req }) => ({ test: "test" }
-    ),
+      { req }) => {
+      console.log(req);
+      return { test: "test" }
+    }
   }),
 )
 

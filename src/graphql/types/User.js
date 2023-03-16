@@ -29,7 +29,7 @@ const UserType = `
     login(input: LoginInput) : Message
   }
   type Mutation {
-    register(input: RegisterInput) : Message
+    register(input: RegisterInput) : User
   }
   `;
 
